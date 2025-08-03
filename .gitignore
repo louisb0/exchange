@@ -10,3 +10,5 @@ devenv.local.nix
 
 # CMake
 build/
+compile_commands.json
+.cache/
