@@ -236,7 +236,7 @@ int main() {
                     }
 
                     // Set non-blocking.
-                    int flags = fcntl(listen_fd, F_GETFL, 0);
+                    int flags = fcntl(client_fd, F_GETFL, 0);
                     if (flags == -1) {
                         perror("fcntl(F_GETFL)");
                         close(client_fd);
