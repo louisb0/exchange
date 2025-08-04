@@ -11,9 +11,11 @@ static constexpr const char *ENGINE_MULTICAST_ADDR = "239.1.1.1";
 } // namespace config
 
 namespace ouch {
+constexpr uint8_t TOKEN_LENGTH = 14;
+
 struct __attribute__((packed)) enter_order_message {
     char message_type;
-    char order_token[14];
+    char order_token[TOKEN_LENGTH]; // NOLINT(*-c-arrays)
     uint32_t order_book_id;
     char side;
     uint64_t quantity;
@@ -23,7 +25,7 @@ struct __attribute__((packed)) enter_order_message {
 struct __attribute__((packed)) order_accepted_message {
     char message_type;
     uint64_t timestamp;
-    char order_token[14];
+    char order_token[TOKEN_LENGTH]; // NOLINT(*-c-arrays)
     uint32_t order_book_id;
     char side;
     uint64_t order_id;

@@ -1,0 +1,17 @@
+Checks:
+  - bugprone-*
+  - performance-*
+
+  - readability-*
+  - -readability-identifier-length
+  - -readability-function-cognitive-complexity
+
+  - modernize-*
+  - -modernize-use-trailing-return-type
+
+  - cppcoreguidelines-*
+  - -cppcoreguidelines-pro-type-reinterpret-cast
+  - -cppcoreguidelines-pro-type-vararg
+  - -cppcoreguidelines-pro-bounds-constant-array-index
+  - -cppcoreguidelines-pro-bounds-pointer-arithmetic
+WarningsAsErrors: '*'

@@ -1,6 +1,7 @@
 #include "common.hpp"
 
 #include <arpa/inet.h>
+#include <array>
 #include <cassert>
 #include <cerrno>
 #include <cstdio>
@@ -8,6 +9,7 @@
 #include <fcntl.h>
 #include <iostream>
 #include <netinet/in.h>
+#include <string_view>
 #include <sys/epoll.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -29,11 +31,7 @@ int connect_engine() {
     sockaddr_in addr{};
     addr.sin_family = AF_INET;
     addr.sin_port = htons(config::ENGINE_PORT);
-    if (inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr) <= 0) {
-        perror("connect_engine inet_pton()");
-        close(engine_fd);
-        return -1;
-    }
+    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 
     if (connect(engine_fd, reinterpret_cast<sockaddr *>(&addr), sizeof(addr)) == -1) {
         perror("connect_engine connect()");
@@ -89,14 +87,10 @@ int register_multicast(int epoll_fd) {
     }
 
     // Register to multicast.
-    struct ip_mreq mreq;
+    struct ip_mreq mreq{};
+    mreq.imr_interface.s_addr = htonl(INADDR_LOOPBACK);
     if (inet_pton(AF_INET, config::ENGINE_MULTICAST_ADDR, &mreq.imr_multiaddr) <= 0) {
         perror("register_multicast inet_pton(multiaddr)");
-        close(multicast_fd);
-        return -1;
-    }
-    if (inet_pton(AF_INET, "127.0.0.1", &mreq.imr_interface) <= 0) {
-        perror("register_multicast inet_pton(interface)");
         close(multicast_fd);
         return -1;
     }
@@ -141,11 +135,7 @@ int create_listener(int epoll_fd) {
     sockaddr_in addr{};
     addr.sin_family = AF_INET;
     addr.sin_port = htons(config::GATEWAY_PORT);
-    if (inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr) <= 0) {
-        perror("create_listener inet_pton()");
-        close(listen_fd);
-        return -1;
-    }
+    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 
     int reuse = 1;
     if (setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0) {
@@ -203,9 +193,10 @@ int main() {
     }
     std::cout << "[gateway] Listening...\n";
 
-    epoll_event events[64];
+    constexpr uint16_t MAX_EVENTS = 64;
+    std::array<epoll_event, MAX_EVENTS> events{};
     while (true) {
-        int nfds = epoll_wait(epoll_fd, events, 64, -1);
+        int nfds = epoll_wait(epoll_fd, events.data(), MAX_EVENTS, -1);
         if (nfds == -1) {
             if (errno == EINTR) {
                 continue;
@@ -219,8 +210,8 @@ int main() {
             int fd = events[i].data.fd;
 
             if (fd == listen_fd) {
-                sockaddr_in client_addr;
-                socklen_t client_addrlen;
+                sockaddr_in client_addr{};
+                socklen_t client_addrlen{};
 
                 while (true) {
                     // Accept connection.
@@ -259,14 +250,16 @@ int main() {
                     std::cout << "[gateway] Accepted client.\n";
                 }
             } else if (fd == multicast_fd) {
-                ouch::order_accepted_message msg;
+                ouch::order_accepted_message msg{};
                 char *buf = reinterpret_cast<char *>(&msg);
                 ssize_t bytes = recv(multicast_fd, buf, sizeof(msg), 0);
                 assert(bytes > 0 && "only exact messages multicasted");
 
-                std::cout << "[gateway] ME accepted order_token=" << msg.order_token << ".\n";
+                std::cout << "[gateway] ME accepted order_token="
+                          << std::string_view(std::data(msg.order_token), ouch::TOKEN_LENGTH)
+                          << ".\n";
             } else {
-                ouch::enter_order_message msg;
+                ouch::enter_order_message msg{};
                 char *buf = reinterpret_cast<char *>(&msg);
 
                 size_t read = 0;
@@ -275,13 +268,17 @@ int main() {
                     assert(bytes > 0 && "no partial messages");
                     read += bytes;
                 }
-                std::cout << "[gateway] Received order_token=" << msg.order_token << ".\n";
+                std::cout << "[gateway] Received order_token="
+                          << std::string_view(std::data(msg.order_token), ouch::TOKEN_LENGTH)
+                          << ".\n";
 
                 if (send(engine_fd, &msg, sizeof(msg), 0) == -1) {
                     perror("send()");
                     continue;
                 }
-                std::cout << "[gateway] Sent order_token=" << msg.order_token << ".\n";
+                std::cout << "[gateway] Sent order_token="
+                          << std::string_view(std::data(msg.order_token), ouch::TOKEN_LENGTH)
+                          << ".\n";
             }
         }
     }

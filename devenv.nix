@@ -3,10 +3,34 @@
 
   packages = with pkgs; [
     alejandra
-    statix
-    deadnix
-    pre-commit
+    include-what-you-use
+    clang-tools
   ];
+
+  git-hooks.hooks = {
+    alejandra = {
+      enable = true;
+      settings.check = true;
+    };
+
+    clang-format = {
+      enable = true;
+      entry = "${pkgs.clang-tools}/bin/clang-format --dry-run -Werror";
+    };
+
+    clang-tidy = {
+      enable = true;
+      entry = "${pkgs.clang-tools}/bin/clang-tidy -p build";
+    };
+
+    iwyu = {
+      enable = true;
+      name = "include-what-you-use";
+      entry = "iwyu_tool.py -p build";
+      files = "\\.(cpp|hpp)$";
+      pass_filenames = false;
+    };
+  };
 
   scripts = {
     setup.exec = ''
@@ -19,26 +43,6 @@
 
     clean.exec = ''
       rm -rf build/ .cache/
-    '';
-
-    run.exec = ''
-      cleanup() {
-        kill $ENGINE_PID $GATEWAY_PID 2>/dev/null
-        exit
-      }
-      trap cleanup INT TERM EXIT
-
-      build
-
-      ./build/engine &
-      ENGINE_PID=$!
-
-      sleep 2
-
-      ./build/gateway &
-      GATEWAY_PID=$!
-
-      wait
     '';
   };
 }
