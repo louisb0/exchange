@@ -6,7 +6,7 @@ AccessModifierOffset: -4
 SortIncludes: CaseInsensitive
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex: '^"common\.hpp"'
+  - Regex: '^"(protocol|config)\.hpp"'
     Priority: 1
     SortPriority: 1
     CaseSensitive: false
@@ -16,7 +16,12 @@ IncludeCategories:
     SortPriority: 2
     CaseSensitive: false
 
-  - Regex: '.*'
+  - Regex: '^<gtest/gtest.h>'
     Priority: 3
     SortPriority: 3
+    CaseSensitive: false
+
+  - Regex: '.*'
+    Priority: 4
+    SortPriority: 4
     CaseSensitive: false

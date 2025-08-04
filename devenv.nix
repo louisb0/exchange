@@ -27,7 +27,14 @@
       enable = true;
       name = "include-what-you-use";
       entry = "iwyu";
-      files = "\\.(cpp|hpp)$";
+      pass_filenames = false;
+    };
+
+    unit-test = {
+      enable = true;
+      name = "unit-test";
+      entry = "rt";
+      pass_filenames = false;
     };
   };
 
@@ -37,7 +44,13 @@
     '';
 
     build.exec = ''
+      setup
       cmake --build build
+    '';
+
+    rt.exec = ''
+      build
+      ctest --test-dir build --output-on-failure
     '';
 
     clean.exec = ''
@@ -45,7 +58,7 @@
     '';
 
     iwyu.exec = ''
-      output=$(iwyu_tool.py -p build)
+      output=$(iwyu_tool.py -p build gateway/ engine/ client/ 2>&1 | grep -v "no private include name for @headername mapping")
       echo "$output"
       echo "$output" | grep -q "should add these lines:" && exit 1 || exit 0
     '';

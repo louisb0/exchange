@@ -5,18 +5,18 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_compile_options(-Wall -Wextra -pedantic -fsanitize=address -fsanitize=undefined -g)
-add_link_options(-fsanitize=address -fsanitize=undefined)
-
-add_executable(engine engine/main.cpp)
-target_include_directories(engine PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/engine
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/tags/v1.17.0.zip
 )
+FetchContent_MakeAvailable(googletest)
 
-# Gateway executable
-add_executable(gateway gateway/main.cpp)
-target_include_directories(gateway PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/gateway
-)
+add_library(common INTERFACE)
+target_include_directories(common INTERFACE common/)
+
+enable_testing()
+
+add_subdirectory(gateway)
+add_subdirectory(engine)
+add_subdirectory(client)

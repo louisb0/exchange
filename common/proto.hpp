@@ -1,19 +1,13 @@
 #pragma once
 
 #include <cstdint>
-#include <netinet/in.h>
 
-namespace config {
-static constexpr uint16_t GATEWAY_PORT = 3000;
-static constexpr uint16_t ENGINE_PORT = 3001;
-static constexpr uint16_t ENGINE_MULTICAST_PORT = 3002;
-static constexpr const char *ENGINE_MULTICAST_ADDR = "239.1.1.1";
-} // namespace config
+namespace proto {
 
 namespace ouch {
 constexpr uint8_t TOKEN_LENGTH = 14;
 
-struct __attribute__((packed)) enter_order_message {
+struct __attribute__((packed)) enter_order {
     char message_type;
     char order_token[TOKEN_LENGTH]; // NOLINT(*-c-arrays)
     uint32_t order_book_id;
@@ -22,7 +16,7 @@ struct __attribute__((packed)) enter_order_message {
     int32_t price;
 };
 
-struct __attribute__((packed)) order_accepted_message {
+struct __attribute__((packed)) order_accepted {
     char message_type;
     uint64_t timestamp;
     char order_token[TOKEN_LENGTH]; // NOLINT(*-c-arrays)
@@ -33,3 +27,17 @@ struct __attribute__((packed)) order_accepted_message {
     int32_t price;
 };
 } // namespace ouch
+
+namespace scratch {
+namespace {
+template <typename T> struct message {
+    uint32_t client_id;
+    T ouch;
+};
+} // namespace
+
+using enter_order = message<ouch::enter_order>;
+using order_accepted = message<ouch::order_accepted>;
+} // namespace scratch
+
+} // namespace proto
