@@ -26,7 +26,7 @@
     iwyu = {
       enable = true;
       name = "include-what-you-use";
-      entry = "sh -c 'output=$(iwyu_tool.py -p build \"$@\"); echo \"$output\"; echo \"$output\" | grep -q \"should add these lines:\" && exit 1 || exit 0'";
+      entry = "iwyu";
       files = "\\.(cpp|hpp)$";
     };
   };
@@ -42,6 +42,12 @@
 
     clean.exec = ''
       rm -rf build/ .cache/
+    '';
+
+    iwyu.exec = ''
+      output=$(iwyu_tool.py -p build)
+      echo "$output"
+      echo "$output" | grep -q "should add these lines:" && exit 1 || exit 0
     '';
   };
 }
