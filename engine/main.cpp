@@ -8,6 +8,7 @@
 #include <iostream>
 #include <iterator>
 #include <netinet/in.h>
+#include <string_view>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>

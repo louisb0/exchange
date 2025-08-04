@@ -26,9 +26,8 @@
     iwyu = {
       enable = true;
       name = "include-what-you-use";
-      entry = "iwyu_tool.py -p build";
+      entry = "sh -c 'output=$(iwyu_tool.py -p build \"$@\"); echo \"$output\"; echo \"$output\" | grep -q \"should add these lines:\" && exit 1 || exit 0'";
       files = "\\.(cpp|hpp)$";
-      pass_filenames = false;
     };
   };
 

@@ -4,10 +4,12 @@
 #include <array>
 #include <cassert>
 #include <cerrno>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <fcntl.h>
 #include <iostream>
+#include <iterator>
 #include <netinet/in.h>
 #include <string_view>
 #include <sys/epoll.h>
@@ -20,6 +22,22 @@
 // are of equal priority as incoming requests from other clients.
 //  - Consider a separate thread for multicast data / client responses?
 //  - Use epoll only for established client connections, process multicast data on each iteration?
+//
+// TODO:
+//  - build client, send data back to client in gateway
+//
+//  - Spec out internal protocol
+//  - Partial reads and client state in gateway
+//  - Implement basic matching logic
+//  - Implement MDS
+//  - Reliability (gateway drops, ME goes down, etc.)
+//
+//  - **specifying 127.0.0.1?**
+// addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK); // More portable than inet_pton for localhost
+//
+//
+// fuzzing
+// simulation testing
 
 int connect_engine() {
     int engine_fd = socket(AF_INET, SOCK_STREAM, 0);
