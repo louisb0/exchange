@@ -9,10 +9,14 @@ add_compile_options(-Wall -Wextra -pedantic -fsanitize=address -fsanitize=undefi
 add_link_options(-fsanitize=address -fsanitize=undefined)
 
 add_executable(engine engine/main.cpp)
-target_include_directories(engine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(engine PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/engine
+)
 
-add_executable(engine engine/main.cpp)
-target_include_directories(engine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-
+# Gateway executable
 add_executable(gateway gateway/main.cpp)
-target_include_directories(gateway PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(gateway PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/gateway
+)
