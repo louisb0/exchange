@@ -1,4 +1,3 @@
-add_executable(client src/main.cpp)
-target_link_libraries(client
-    common
-)
+file(GLOB_RECURSE PROGRAM_SOURCES "src/*.cpp")
+add_executable(client ${PROGRAM_SOURCES})
+target_link_libraries(client common)

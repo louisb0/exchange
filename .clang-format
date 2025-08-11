@@ -2,11 +2,13 @@ BasedOnStyle: LLVM
 IndentWidth: 4
 ColumnLimit: 100
 AccessModifierOffset: -4
+NamespaceIndentation: Inner
+Cpp11BracedListStyle: false
 
 SortIncludes: CaseInsensitive
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex: '^"(protocol|config)\.hpp"'
+  - Regex: '^"include/.*\.hpp?"'
     Priority: 1
     SortPriority: 1
     CaseSensitive: false
@@ -16,7 +18,7 @@ IncludeCategories:
     SortPriority: 2
     CaseSensitive: false
 
-  - Regex: '^<gtest/gtest.h>'
+  - Regex: '^(<gtest/gtest.h>|<spdlog/spdlog.h>)'
     Priority: 3
     SortPriority: 3
     CaseSensitive: false
